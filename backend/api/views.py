@@ -4,22 +4,19 @@ from .models import *
 from .serializer import *
 from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework.response import Response
 
 # Create your views here.
 
 @api_view(['POST'])
 def api_quick_start(request):
-    if request.method == 'POST' :
-        # data_quick= Quick_Scan.objects.all()
-        # data_quick_serializer = Quick_Scan_Serializer(data_quick , many= True)
-            
-        # return JsonResponse(data_quick_serializer, safe= False)
+    if request.method == 'POST':
+        quick_scan_start = request.data.get('quick_scan_start')
 
-        data = Quick_Scan.get('start_quick_scan')
-        if data is None:
-            return Quick_Scan({"error": "Invalid data format. 'value' field with true/false expected."}, status=400)
+        if quick_scan_start is None:
+            return Response({"error": "Invalid data format. 'quick_scan_start' field with true/false expected."}, status=400)
 
         # Assuming you want to store the data or perform some operation with it, you can do it here.
         # For this example, we'll just return the received value in the response.
-        return Quick_Scan({"start_quick_start": data})
-    
+        print("quick_scan" , quick_scan_start)
+        return Response({"quick_scan_start": quick_scan_start})

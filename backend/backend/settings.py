@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -39,12 +40,19 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'api',
     'rest_framework',
-    'corsheaders',
+    
 
 ]
 
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False
+
+
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:3000',  # Add any other origins you want to allow
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

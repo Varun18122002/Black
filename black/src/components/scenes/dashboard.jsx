@@ -19,32 +19,53 @@ function Dashboard() {
   const colors = tokens(theme.palette.mode);
   const [isQuickScan, setisQuickScan] = useState(false);
 
+  // const Quick_Scan = async (event) => {
+  //   try {
+      
+  //     setisQuickScan(!isQuickScan);
+
+  //     var response = await axios.post("http://localhost:8000/api/", {
+  //       method: "POST",
+  //       headers: { "Content-type": "application/json" },
+  //       credentials: "include",
+  //       body: JSON.stringify({
+  //         quick_scan_start: isQuickScan,
+  //       }),
+  //     });
+
+  //   //   quick_scan_start: isQuickScan,
+  //   // }, {
+  //   //   headers: { "Content-type": "application/json" },
+  //   //   withCredentials: true, // Use 'withCredentials' instead of 'credentials'
+  //   // });
+
+  //     console.log(response);
+  //     console.log(isQuickScan)
+  //   } catch (error) {
+  //     console.log(console.error);
+  //   }
+  // };
+
   const Quick_Scan = async (event) => {
     try {
-      
       setisQuickScan(!isQuickScan);
-
-      var response = await axios.post("http://localhost:8000/api/", {
-        method: "POST",
+  
+      const response = await axios.post("http://localhost:8000/api/", {
+        quick_scan_start: isQuickScan,
+      }, {
         headers: { "Content-type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          quick_scan_start: isQuickScan,
-        }),
+        withCredentials: true, // Use 'withCredentials' instead of 'credentials'
       });
-
-    //   quick_scan_start: isQuickScan,
-    // }, {
-    //   headers: { "Content-type": "application/json" },
-    //   withCredentials: true, // Use 'withCredentials' instead of 'credentials'
-    // });
-
+  
       console.log(response);
-      console.log(isQuickScan)
+      console.log(isQuickScan);
     } catch (error) {
-      console.log(console.error);
+      console.error(error);
+
     }
   };
+  
+
 
   return (
     //sx={{ backgroundImage: `${backimg}` }} ==> setting for back image
