@@ -1,0 +1,7 @@
+choose the tools: vulnerability scanning tools you want to integrate, such as OpenVAS, Nessus, Nikto, Nmap, OpenSCAP, Lynis, OSSEC
+Define Scannig Parameter: he parameters for the scanning process, such as target IP ranges, ports, authentication credentials, and scan options. 
+Design the workflow: the workflow of the tool, including steps such as initializing the scans, collecting scan results, parsing and aggregating the data, and generating reports.
+Implement Scanning Function: Python code integrate with the API function, how it will react with the CLI 
+Data Parameters: After scan are parse the information to csv or a log file which will be easy to monitor and maintain
+Report: genrating the report and summery of the output or scans 
+UserInterface: visualizing the report choosing the correct requirement for UI and API to call 
