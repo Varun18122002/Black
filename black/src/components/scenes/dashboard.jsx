@@ -11,40 +11,18 @@ import TravelExploreIcon from "@mui/icons-material/TravelExplore";
 import Spider from "../plottings/spider";
 import "./dashboard.css";
 import axios from "axios";
+import Description from "./Description/description";
+
 
 
 
 function Dashboard() {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [isQuickScan, setisQuickScan] = useState(false);
+  const [isQuickScan, setisQuickScan] = useState(true);
+  const [isFullScan, setisFullScan] = useState(true);
 
-  // const Quick_Scan = async (event) => {
-  //   try {
-      
-  //     setisQuickScan(!isQuickScan);
-
-  //     var response = await axios.post("http://localhost:8000/api/", {
-  //       method: "POST",
-  //       headers: { "Content-type": "application/json" },
-  //       credentials: "include",
-  //       body: JSON.stringify({
-  //         quick_scan_start: isQuickScan,
-  //       }),
-  //     });
-
-  //   //   quick_scan_start: isQuickScan,
-  //   // }, {
-  //   //   headers: { "Content-type": "application/json" },
-  //   //   withCredentials: true, // Use 'withCredentials' instead of 'credentials'
-  //   // });
-
-  //     console.log(response);
-  //     console.log(isQuickScan)
-  //   } catch (error) {
-  //     console.log(console.error);
-  //   }
-  // };
+  
 
   const Quick_Scan = async (event) => {
     try {
@@ -66,6 +44,41 @@ function Dashboard() {
   };
   
 
+  const Full_Scan = async (event) => {
+    try {
+      setisFullScan(!isFullScan);
+  
+      const response = await axios.post("http://localhost:8000/full_scan/", {
+        full_scan_start: isFullScan,
+      }, {
+        headers: { "Content-type": "application/json" },
+        withCredentials: true, // Use 'withCredentials' instead of 'credentials'
+      });
+  
+      console.log(response);
+      console.log(isFullScan);
+    } catch (error) {
+      console.error(error);
+
+    }
+  };
+
+  const downloadFile = async (event) => {
+    try{
+    const response = await axios.get("http://localhost:8000/download_report" , { responseType : 'blob'});
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'Black_Scan.txt');
+    document.body.appendChild(link);
+    link.click();
+
+  }
+  catch(error)
+  {
+    console.log(error)
+  }
+}
 
   return (
     //sx={{ backgroundImage: `${backimg}` }} ==> setting for back image
@@ -81,6 +94,7 @@ function Dashboard() {
         <Box>
           <Button
             startIcon={<DownloadOutlined />}
+            onClick={downloadFile}
             sx={{
               backgroundColor: colors.indigo[700],
               color: colors.grey[100],
@@ -202,12 +216,13 @@ function Dashboard() {
                       // }
                     }}
                   >
-                    {isQuickScan? 'Starting' : 'Quick Scan'}
+                    {isQuickScan? 'Quick Scan' : 'Starting'}
                   </Button>
                 </Box>
                 <Box>
                   <Button
                     startIcon={<TravelExploreIcon />}
+                    onClick={ Full_Scan }
                     sx={{
                       backgroundColor: colors.indigo[700],
                       color: colors.grey[100],
@@ -225,7 +240,7 @@ function Dashboard() {
                       // }
                     }}
                   >
-                    Full Scan
+                    {isFullScan? 'Full Scan' : 'Starting'}
                   </Button>
                 </Box>
               </Box>
@@ -241,8 +256,14 @@ function Dashboard() {
               },
             }}
           >
-            <Box>
+            <Box><Box
+            margin=  "1% 2%"
+            padding= "1% 2%"
+
+            ><Typography variant="h3" fontWeight="bold" > Radar Chart </Typography>
+    </Box>
               <Spider />
+
             </Box>
           </Box>
           <Box
@@ -255,7 +276,7 @@ function Dashboard() {
               },
             }}
           >
-            Hello 4
+            <Description/>
           </Box>
           <Box
             backgroundColor={colors.black[400]}

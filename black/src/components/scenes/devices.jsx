@@ -30,8 +30,8 @@ function Devices() {
             backgroundColor={colors.black[400]}
             borderRadius="30px"
           >
-            <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search" />
-            <IconButton type="button" sx={{ p: 1 }}>
+            <InputBase className='search_input' type='text' id="search"  sx={{ ml: 2, flex: 1 }} placeholder="Search" />
+            <IconButton type="button"  sx={{ p: 1 }}>
               <SearchIcon />
             </IconButton>
           </Box>

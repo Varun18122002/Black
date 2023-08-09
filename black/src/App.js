@@ -34,7 +34,9 @@ function App() {
         <CssBaseline />
       
 
-        <div className="app">
+        <div className="app"
+        
+        >
 
           <Box className="boxofsidebar"
               display ="grid"

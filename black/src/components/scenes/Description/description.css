@@ -1,0 +1,26 @@
+ .description{
+    max-height: 300px;
+    overflow: scroll;
+    margin: 1% 2% ;
+    padding: 1% 2%;
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    justify-content: space-between;
+}
+
+.title{
+    margin: 2% 3% ;
+}
+
+.rowbox{
+    display: grid;
+    grid-column: "span 1";
+    grid-template-rows: repeat(24,80px);
+    gap: 5px;
+}
+
+.valuebox{
+    grid-column: "span 1";
+    overflow: scroll;
+    display: flex;
+}

@@ -3,10 +3,9 @@ import subprocess
 import platform
 import psutil
 import socket
-import wmi
-import win32com.client
 import distro
 import json
+
 
 def get_disk_info():
     disk_info = {}
@@ -47,19 +46,43 @@ def get_system_updates():
         print(f"Error retrieving system update details: {e}")
     return update_info
 
+# def get_installed_software():
+#     software_info = []
+#     try:
+#         software_list = win32com.client.Dispatch("WbemScripting.SWbemLocator")
+#         wmi_service = software_list.ConnectServer(".", "root\cimv2")
+#         wmi_query = "SELECT * FROM Win32_Product"
+#         software_items = wmi_service.ExecQuery(wmi_query)
+#
+#         for item in software_items:
+#             software_info.append(item.Caption)
+#     except Exception as e:
+#         print(f"Error retrieving installed software list: {e}")
+#     return software_info
+
+
 def get_installed_software():
     software_info = []
     try:
-        software_list = win32com.client.Dispatch("WbemScripting.SWbemLocator")
-        wmi_service = software_list.ConnectServer(".", "root\cimv2")
-        wmi_query = "SELECT * FROM Win32_Product"
-        software_items = wmi_service.ExecQuery(wmi_query)
-
-        for item in software_items:
-            software_info.append(item.Caption)
+        reg_path = r"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall"
+        reg_view = winreg.KEY_READ | winreg.KEY_WOW64_64KEY
+        with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, reg_path, 0, reg_view) as key:
+            for i in range(winreg.QueryInfoKey(key)[0]):
+                subkey_name = winreg.EnumKey(key, i)
+                with winreg.OpenKey(key, subkey_name) as subkey:
+                    try:
+                        display_name = winreg.QueryValueEx(subkey, 'DisplayName')[0]
+                        software_info.append(display_name)
+                    except FileNotFoundError:
+                        pass
     except Exception as e:
         print(f"Error retrieving installed software list: {e}")
     return software_info
+
+# Call the function to get installed software
+# installed_software = get_installed_software()
+# for software in installed_software:
+#     print(software)
 
 def get_system_info():
     system_info = {
@@ -87,7 +110,8 @@ def get_system_info():
             "Available Updates": get_system_updates()['Available Updates']
         },
 
-    "Installed Software": [],
+    "Installed Software Count": len(get_installed_software()),
+    "Installed Software": get_installed_software(),
     "Model": platform.machine(),
     "Manufacturer": platform.system(),
     "Number of Processors": psutil.cpu_count(logical=True),
@@ -111,8 +135,25 @@ def get_system_info():
     json_data = json.dumps(system_info, indent=4)
     return json_data
 
+def linux_scan_to_json(input_file):
+    linux_json_output = "scan_report_to_json.json"
+    data = []
 
-def list_installed_packages():
+    with open(input_file, "r") as file:
+        lines = file.readlines()
+
+    for line in lines:
+        match = re.match(r'^ii\s+(.*?)\s+(\S+)\s+', line.strip())
+        if match:
+            key = match.group(1)
+            value = match.group(2)
+            data.append({"name":key,"version":value})  
+    with open(linux_json_output, "w") as output_file:
+        json.dump(data, output_file, indent=4)
+
+    print("Data extracted and stored in JSON file.") 
+
+def list_installed_packages(linux_distro):
     package_managers = {
         "apt": "dpkg -l",
         "dnf": "dnf list installed",
@@ -122,71 +163,47 @@ def list_installed_packages():
         "snap": "snap list",
         # Add other package managers and their commands here
     }
-
-    for manager, command in package_managers.items():
-        print(f"---- {manager.upper()} Packages ----")
-        try:
-            output = subprocess.check_output(command, shell=True, text=True)
-            print(output)
-        except subprocess.CalledProcessError as e:
-            print(f"Error occurred while listing packages with {manager}: {e}")
-        print()
-
+    linux_file = 'scan_report.txt'
+    with open(linux_file, 'a') as file:
+        for manager, command in package_managers.items():
+            print(f"---- {manager.upper()} Packages ----")
+            try:
+                output = subprocess.check_output(command, shell=True, text=True)
+                print(output)
+                file.write(f"---- {manager.upper()} Packages ----\n")
+                file.write(output)
+            except subprocess.CalledProcessError as e:
+                continue
+            print()
+    linux_scan_to_json(linux_file)       
 #def file_to_json(input_file,output_file):
 
 
 os = platform.system()
 if os=="Windows":
+    import win32com.client
+    import winreg
     system_info_json = get_system_info()
     print(system_info_json)
+    installed_software = get_installed_software()
+
+    inst_soft = "Installed Software.txt"
+    with open(inst_soft,"w") as f:
+        for i in installed_software:
+            f.write(i+"\n")
 
     output_file = "system_info.txt"
     with open(output_file, "w") as file:
         file.write(system_info_json)
 
-
-    # for key, value in system_info.items():
-    #     if isinstance(value, dict):
-    #         print(f"{key}:")
-    #         for k, v in value.items():
-    #             print(f"  {k}: {v}")
-    #     elif isinstance(value, list):
-    #         print(f"{key}:")
-    #         for item in value:
-    #             print(f"  - {item}")
-    #     else:
-    #         print(f"{key}: {value}")
-    #
-    # input_file = "system_info.txt"
-    # output_file = "system_info.json"
-    # with open(input_file, mode='w') as file:
-    #     file.write("System Information:\n")
-    #     for key, value in system_info.items():
-    #         if isinstance(value, dict):
-    #             file.write(f"{key}:\n")
-    #             for k, v in value.items():
-    #                 file.write(f"  {k}: {v}\n")
-    #         elif isinstance(value, list):
-    #             file.write(f"{key}:\n")
-    #             for item in value:
-    #                 file.write(f"  - {item}\n")
-    #         else:
-    #             file.write(f"{key}: {value}\n")
- #   file_to_json(input_file,output_file)
-
 else:
     linux_distro = distro.id().lower()
-    if linux_distro in ["debian", "ubuntu"]:
-        list_installed_packages()
-    elif linux_distro in ["fedora", "centos", "rhel"]:
-        list_installed_packages()
-    elif linux_distro == "arch":
-        list_installed_packages()
-        # Add more distribution checks and corresponding package managers if needed
-    else:
-        print(f"Unsupported Linux distribution: {linux_distro}")
-
-
+    if linux_distro in ["debian", "ubuntu" , "kali"]:
+        list_installed_packages(linux_distro)
+    if linux_distro in ["fedora", "centos", "rhel","nobara"]:
+        list_installed_packages(linux_distro)
+    if linux_distro == "arch":
+        list_installed_packages(linux_distro)
 
 tool_cmd = [
 

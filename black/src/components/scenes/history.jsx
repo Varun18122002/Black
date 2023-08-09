@@ -8,13 +8,30 @@ import { IconButton, useTheme } from "@mui/material"
 import { useContext, useState } from "react"
 import { Button } from '@mui/material';
 import { DownloadOutlined } from '@mui/icons-material';
-
+import axios from 'axios';
 
 function History() {
 
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
+
+  const downloadFile = async (event) => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8000/download_report",
+        { responseType: "blob" }
+      );
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "Black_Scan.txt");
+      document.body.appendChild(link);
+      link.click();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
 
@@ -44,6 +61,7 @@ function History() {
         {/*Download Report*/}
         <Box>
           <Button
+          onClick={downloadFile}
             sx={{
               backgroundColor: colors.indigo[700],
               color: colors.grey[100],
